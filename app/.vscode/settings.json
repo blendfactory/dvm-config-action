@@ -1,0 +1,8 @@
+{
+    "dart.sdkPath": ".dvm/dart_sdk",
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "pubspec.yaml": "pubspec.lock, pubspec_overrides.yaml,",
+        "*.dart": "$(capture).g.dart, $(capture).part.dart",
+    }
+}
