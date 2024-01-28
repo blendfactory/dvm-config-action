@@ -1,7 +1,9 @@
-name: app
-description: A sample command-line application.
+name: extract
+description: "CLI app to extract DVM configuration files."
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+
+executables:
+  extract: app
 
 environment:
   sdk: ^3.2.6
