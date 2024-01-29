@@ -1,0 +1,23 @@
+name: "DVM config action"
+description: "Action to extract the DVM config file."
+author: "Tatsuya Okayama"
+branding:
+  icon: "bookmark"
+  color: "blue"
+inputs:
+  path:
+    description: "Path to the DVM config file"
+    required: false
+    default: "./.dvm/config.yaml"
+outputs:
+  dart-sdk-version:
+    description: "The version of Dart SDK specified in the DVM config file."
+    value: ${{ steps.extract.outputs.dart-sdk-version }}
+runs:
+  using: "composite"
+  steps:
+    - id: extract
+      run: main.sh
+      shell: bash
+      env:
+        RUNNER_OS: ${{ runner.os }}
