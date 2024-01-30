@@ -3,7 +3,7 @@
 if [[ "$RUNNER_OS" =~ ^windows* ]]; then
     scripts/windows/app.exe
 elif [[ "$RUNNER_OS" =~ ^ubuntu* ]]; then
-    scripts/ubuntu/app.exe
+    scripts/linux/app.exe
 elif [[ "$RUNNER_OS" =~ ^macos* ]]; then
     scripts/macos/app.exe
 else
