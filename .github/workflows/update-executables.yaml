@@ -1,0 +1,92 @@
+name: Update Executables
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  update:
+    strategy:
+      matrix:
+        args:
+          [
+            { image: ubuntu-latest, os: linux },
+            { image: macos-latest, os: macos },
+            { image: windows-latest, os: windows },
+          ]
+    runs-on: ${{ matrix.args.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.2.6
+      - name: Get dependencies
+        run: dart pub get
+        shell: bash
+        working-directory: app
+      - name: Update
+        run: dart compile exe bin/app.dart -o ./../executables/${{ matrix.args.os }}/app.exe
+        working-directory: app
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: executables-${{ matrix.args.os }}
+          path: executables/${{ matrix.args.os }}/app.exe
+  create-pr:
+    needs: update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download linux executable
+        uses: actions/download-artifact@v4
+        with:
+          name: executables-linux
+          path: executables/linux
+      - name: Download macos executable
+        uses: actions/download-artifact@v4
+        with:
+          name: executables-macos
+          path: executables/macos
+      - name: Download windows executable
+        uses: actions/download-artifact@v4
+        with:
+          name: executables-windows
+          path: executables/windows
+      - name: Generate a token for pr-creator
+        id: app-token-pr-creator
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID_BLENDFACTORY_PR_CREATOR }}
+          private-key: ${{ secrets.PRIVATE_KEY_BLENDFACTORY_PR_CREATOR }}
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ steps.app-token-pr-creator.outputs.token }}
+          commit-message: "feat: Update executables"
+          branch: auto/update-executables
+          delete-branch: true
+          title: "Update executables"
+      - name: Auto Approve
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate a token for pr-auto-merge-enabler
+        id: app-token-pr-auto-merge-enabler
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID_BLENDFACTORY_PR_AUTO_MERGE_ENABLER }}
+          private-key: ${{ secrets.PRIVATE_KEY_BLENDFACTORY_PR_AUTO_MERGE_ENABLER }}
+      - name: Enable Pull Request Automerge
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ steps.app-token-pr-auto-merge-enabler.outputs.token }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
