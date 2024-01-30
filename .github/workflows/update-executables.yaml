@@ -20,10 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Fetch DVM config
+        id: dvm-config-action
+        uses: blendfactory/dvm-config-action@main
+        with:
+          path: ./app/.dvm/confg.json
       - name: Set up Dart
         uses: dart-lang/setup-dart@v1
         with:
-          sdk: 3.2.6
+          sdk: ${{ steps.dvm-config-action.outputs.dart-sdk-version }}
       - name: Get dependencies
         run: dart pub get
         shell: bash
