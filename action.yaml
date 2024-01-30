@@ -21,3 +21,4 @@ runs:
       shell: bash
       env:
         RUNNER_OS: ${{ runner.os }}
+        CONFIG_FILE_PATH: ${{ inputs.path }}
