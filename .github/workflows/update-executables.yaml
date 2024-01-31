@@ -24,7 +24,7 @@ jobs:
         id: dvm-config-action
         uses: blendfactory/dvm-config-action@main
         with:
-          path: ./app/.dvm/confg.json
+          path: ./app/.dvm/config.json
       - name: Set up Dart
         uses: dart-lang/setup-dart@v1
         with:
