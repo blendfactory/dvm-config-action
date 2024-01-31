@@ -46,25 +46,25 @@ Future<void> _extract(String path) async {
     throw AppException('Invalid project config file at $path: $e');
   }
 
-  final projectConfigJson = projectConfig.toJson();
   final githubOutput = Platform.environment['GITHUB_OUTPUT'];
   if (githubOutput == null) {
     throw AppException(r'Environment variable $GITHUB_OUTPUT is not set');
   }
 
-  final futures = projectConfigJson.entries.map(
-    (entry) => Process.run(
-      'echo',
-      [
-        '"${entry.key.paramCase}=${entry.value}"',
-        '>>',
-        githubOutput,
-      ],
-    ),
-  );
-  final results = await Future.wait(futures);
-  final exitCodes = results.map((result) => result.exitCode);
-  if (exitCodes.any((exitCode) => exitCode != 0)) {
-    throw AppException(r'Failed to write project config to $GITHUB_OUTPUT');
+  final githubOutputFile = fileSystem.file(githubOutput);
+  if (!githubOutputFile.existsSync()) {
+    throw AppException(r'Environment variable $GITHUB_OUTPUT is not a file');
+  }
+
+  final projectConfigJson = projectConfig.toJson();
+  final ioSink = githubOutputFile.openWrite(mode: FileMode.append);
+  try {
+    for (final entry in projectConfigJson.entries) {
+      final key = entry.key.paramCase;
+      final value = entry.value;
+      ioSink.writeln('$key=$value');
+    }
+  } finally {
+    await ioSink.close();
   }
 }
