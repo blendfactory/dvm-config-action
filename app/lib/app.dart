@@ -47,13 +47,18 @@ Future<void> _extract(String path) async {
   }
 
   final projectConfigJson = projectConfig.toJson();
+  final githubOutput = Platform.environment['GITHUB_OUTPUT'];
+  if (githubOutput == null) {
+    throw AppException(r'Environment variable $GITHUB_OUTPUT is not set');
+  }
+
   final futures = projectConfigJson.entries.map(
     (entry) => Process.run(
       'echo',
       [
         '"${entry.key.paramCase}=${entry.value}"',
         '>>',
-        r'$GITHUB_OUTPUT',
+        githubOutput,
       ],
     ),
   );
