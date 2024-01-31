@@ -7,5 +7,5 @@ Future<void> main(List<String> arguments) async {
   return Future.wait([
     stdout.close(),
     stderr.close(),
-  ]).then((_) => exitCode);
+  ]).then((_) => exit(exitCode));
 }
