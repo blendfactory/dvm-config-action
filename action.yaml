@@ -5,10 +5,10 @@ branding:
   icon: "bookmark"
   color: "blue"
 inputs:
-  path:
-    description: "Path to the DVM config file"
+  project-dir:
+    description: "The path to the directory where the project exists."
     required: false
-    default: "./.dvm/config.yaml"
+    default: "."
 outputs:
   dart-sdk-version:
     description: "The version of Dart SDK specified in the DVM config file."
@@ -23,4 +23,4 @@ runs:
       shell: bash
       env:
         RUNNER_OS: ${{ runner.os }}
-        CONFIG_FILE_PATH: ${{ inputs.path }}
+        PROJECT_DIR: ${{ inputs.project-dir }}

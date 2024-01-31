@@ -7,14 +7,14 @@ import 'package:file/local.dart';
 import 'package:recase/recase.dart';
 
 Future<int> runApp(List<String> arguments) async {
-  final path = arguments.firstOrNull;
-  if (path == null) {
+  final projectDirPath = arguments.firstOrNull;
+  if (projectDirPath == null) {
     stderr.writeln('Usage: extract <path>');
     return 1;
   }
 
   try {
-    await _extract(path);
+    await _extract(projectDirPath);
     stdout.writeln(r'Successfully extracted project config to $GITHUB_OUTPUT');
     return 0;
   } on AppException catch (e) {
@@ -23,11 +23,16 @@ Future<int> runApp(List<String> arguments) async {
   }
 }
 
-Future<void> _extract(String path) async {
+Future<void> _extract(String projectDirPath) async {
   final fileSystem = LocalFileSystem();
-  final projectConfigFile = fileSystem.file(path);
+  final projectDir = fileSystem.directory(projectDirPath);
+  if (!projectDir.existsSync()) {
+    throw AppException('Project directory not found at $projectDirPath');
+  }
+
+  final projectConfigFile = projectDir.childFile('.dvm/config.json');
   if (!projectConfigFile.existsSync()) {
-    throw AppException('Project config file not found at $path');
+    throw AppException('Project config file not found at $projectDirPath');
   }
 
   final projectConfigContent = projectConfigFile.readAsStringSync();
@@ -36,14 +41,14 @@ Future<void> _extract(String path) async {
   try {
     json = jsonDecode(projectConfigContent) as Map<String, dynamic>;
   } on FormatException catch (e) {
-    throw AppException('Invalid project config file at $path: $e');
+    throw AppException('Invalid project config file at $projectDirPath: $e');
   }
 
   final ProjectConfig projectConfig;
   try {
     projectConfig = ProjectConfig.fromJson(json);
   } on FormatException catch (e) {
-    throw AppException('Invalid project config file at $path: $e');
+    throw AppException('Invalid project config file at $projectDirPath: $e');
   }
 
   final githubOutput = Platform.environment['GITHUB_OUTPUT'];
