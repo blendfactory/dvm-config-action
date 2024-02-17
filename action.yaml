@@ -22,5 +22,4 @@ runs:
       run: main.sh
       shell: bash
       env:
-        RUNNER_OS: ${{ runner.os }}
         PROJECT_DIR: ${{ inputs.project-dir }}
