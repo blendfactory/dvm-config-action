@@ -1,6 +1,6 @@
 name: extract
 description: "CLI app to extract DVM configuration files."
-version: 1.0.0
+version: 2.0.0
 
 executables:
   extract: app
