@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "app",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": [
+                "--define=DEBUG=true",
+            ],
+            "args": [
+                "./.dvm/config.json",
+            ],
+            "env": {
+                "GITHUB_OUTPUT": "github_output.log",
+            },
+        }
+    ]
+}
